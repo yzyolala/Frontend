@@ -358,8 +358,19 @@ Monorepo 是整个 Walmart Allspark Core 的基础概念。
 
 不是一个项目一个 repo，而是：
 
+7.FlatList 是一个 高性能列表组件，用于渲染长列表。
+
+最核心的三个 props：
+
+属性	作用
+data	数据数组
+renderItem	每一行怎么显示
+keyExtractor	返回每行唯一 key
+
 一个大 repo（mono）
 
 里面有多个 package（repo）
+
+8.react里面函数必须有return,而且必须是return()不是{}
 
 6.
