@@ -354,3 +354,89 @@ return <Text>Hello</Text>
 
 ---
 
+# 9.
+Promise.resolve().then(() => console.log(1));
+console.log(2);
+// 输出：2, 1
+为啥不是1，2
+ChatGPT said:
+
+这是 事件循环（Event Loop）+ 微任务（Microtask） 的问题，不是 Promise 本身的问题。
+我用最简单、最清晰、不抽象的方式告诉你为什么是 2, 1。
+
+✅ 核心一句话（真正原因）：
+
+Promise.then 的回调永远是“微任务（microtask）”，
+而同步代码会优先执行。
+
+🔥 看执行顺序（详细步骤）
+
+代码：
+
+Promise.resolve().then(() => console.log(1));
+console.log(2);
+
+
+执行流程：
+
+🟩 步骤 1：执行同步代码（立即执行）
+
+JS 从上到下执行：
+
+遇到 →
+Promise.resolve().then(...)
+
+
+Promise.resolve() 立即返回一个 fulfilled 的 Promise
+
+.then(...) 的回调 不会立刻执行
+
+而是被放进 微任务队列（microtask queue）
+
+👉 此时并没有打印任何东西
+
+🟩 步骤 2：继续执行同步代码
+
+执行下一行：
+
+console.log(2);
+
+
+这是同步，所以立刻执行 → 输出：
+
+2
+
+🟩 步骤 3：同步代码执行完毕 → 开始清空微任务队列
+
+现在 Call Stack 空了，Event Loop 去检查微任务队列。
+
+队列里有一个任务：
+
+() => console.log(1)
+
+
+于是执行：
+
+1
+
+🟦 最终输出：
+2
+1
+
+🎯 为什么不是 1, 2？
+
+因为：
+
+console.log(2) 是同步任务 → 立即执行
+
+then 回调 是微任务 → 等同步任务执行完才执行
+
+不管怎么样：
+
+微任务永远晚于同步任务执行。
+
+🧠 用一句更工程化的话总结：
+
+Promise.then 回调是排队的，console.log(2) 不是排队的。
+所以 2 一定先执行。
+
