@@ -1,4 +1,4 @@
-1.解释 JS 的 event loop / 事件循环；call stack 和 task queue 有什么区别？
+# 1.解释 JS 的 event loop / 事件循环；call stack 和 task queue 有什么区别？
 Keywords: event loop, call stack, task queue, microtask vs macrotask
 
 | 概念                  | 作用           | 内容                         | 优先级      |
@@ -38,7 +38,7 @@ setTimeout → 宏任务
 再执行一个宏任务 → 输出 2
 
 
-2.什么是闭包（closure），典型使用场景和常见坑？
+# 2.什么是闭包（closure），典型使用场景和常见坑？
 Keywords: closure, lexical scope, memory leak
 
 最直白的一句话：
@@ -89,7 +89,7 @@ outer() 结束，但变量不会被销毁
 
 
 
-3.this 在不同场景下怎么绑定？（普通函数 / 箭头函数 / call/apply/bind / class method）
+# 3.this 在不同场景下怎么绑定？（普通函数 / 箭头函数 / call/apply/bind / class method）
 Keywords: this binding, arrow function, implicit/explicit binding
 
 核心心法：你是“出生决定论”还是“际遇决定论”？
@@ -138,7 +138,7 @@ Keywords: this binding, arrow function, implicit/explicit binding
 严格模式 ('use strict')：指向 undefined (现代框架如 React 默认都是严格模式)。
 
 
-4.var / let / const 区别是什么？涉及到 hoisting 吗？
+# 4.var / let / const 区别是什么？涉及到 hoisting 吗？
 Keywords: hoisting, temporal dead zone, function vs block scope
 
 var / let / const 哪个最好用？
@@ -180,7 +180,7 @@ let / const 只要遇到 “{}” 就能被套住（块级作用域 block）
 → function 当然也能套住
 
 
-5.解释原型链（prototype chain），__proto__ 和 prototype 有什么区别？
+# 5.解释原型链（prototype chain），__proto__ 和 prototype 有什么区别？
 Keywords: prototype chain, inheritance, Object.create
 
 | 名字            | 属于谁？   | 代表什么？                  |
@@ -229,7 +229,7 @@ proto 是对象的隐藏属性，指向它继承自的原型。
 Object.create 能手动指定对象的原型。
 
 
-6. == 和 === 的区别？什么时候可能会踩坑？
+# 6. == 和 === 的区别？什么时候可能会踩坑？
 Keywords: coercion, strict equality, abstract equality
 
 | 运算符   | 名称                          | 会不会做类型转换？            | 比较规则     |
@@ -240,19 +240,128 @@ Keywords: coercion, strict equality, abstract equality
 永远不要用 ==，除非你非常确定行为
 工作中推荐使用 ===，除非你想同时判断 null 和 undefined
 
-7.Promise 的状态流转；async/await 底层等价于什么？
+# 7.Promise 的状态流转；async/await 底层等价于什么？
 Keywords: Promise states, thenable, error handling, async/await
 
-Array.prototype.map / filter / reduce / forEach 区别和常用场景？
+Promise 有且只有三种状态：
+| 状态            | 说明           |
+| ------------- | ------------ |
+| **pending**   | 初始状态、未完成     |
+| **fulfilled** | 成功（resolved） |
+| **rejected**  | 失败（rejected） |
+状态只会从 pending → fulfilled 或 pending → rejected
+一旦进入 fulfilled 或 rejected，就永远不再变化（immutable）。
+
+resolve = 把 Promise 从 pending（等待）变成 fulfilled（成功）
+
+Promise 状态流转规则（面试高频）
+✔ 只能从 pending → fulfilled 或 pending → rejected
+new Promise((resolve, reject) => {
+  resolve(1);
+  reject(2);   // ❌ 无效，因为状态已经变成 fulfilled
+});
+
+✔ resolve() 和 reject() 是异步执行（微任务）
+Promise.resolve().then(() => console.log(1));
+console.log(2);
+// 输出：2, 1
+
+then 返回一个新的 Promise（永远返回新 Promise！）
+let p = Promise.resolve(1);
+
+let p2 = p.then(x => x + 1);
+// p2 是一个新的 Promise，不是 p
+
+async/await 是什么？底层等价是什么？
+
+最关键的一句话：
+
+async/await 是 Promise 的语法糖，await 等价于在 then 中写代码。
+async 函数永远返回一个 Promise。
+
+async 的底层逻辑
+async function foo() {
+  return 1;
+}
+
+
+等价于：
+
+function foo() {
+  return Promise.resolve(1);
+}
+
+
+无论你 return 什么，async 函数都会包成 Promise
+
+await 的底层逻辑（最重要！！！）
+let result = await somePromise();
+
+
+相当于：
+
+somePromise().then(result => {
+  // 下面的代码写在这里
+});
+
+
+也就是：
+
+await = 把后面的代码拆到 then 里执行。
+
+面试官最喜欢听到这段：
+
+“await 会暂停当前 async 函数的执行，把后续代码放入微任务队列，在 Promise resolve 后继续执行。”
+
+Promise / async 基础面试题（你一定会遇到）
+题目：
+async function test() {
+  console.log(1);
+  await Promise.resolve();
+  console.log(2);
+}
+test();
+console.log(3);
+
+
+输出顺序：
+
+1
+3
+2
+
+
+为什么？
+
+async 函数内部同步代码：先打印 1
+
+await → 把后续代码放到微任务
+
+test() 同步部分结束
+
+打印 3
+
+微任务执行 → 打印 2
+
+🟦 7. 高分总结（直接背）
+
+Promise 有三态：pending → fulfilled/rejected，不可逆。
+then 返回新 Promise，异常会进入 rejected。
+async 函数永远返回 Promise。
+await 本质上是 then 的语法糖，会暂停 async 函数，把后续代码放入微任务。
+
+这段背下来，面试官都会点头。
+
+# 8.Array.prototype.map / filter / reduce / forEach 区别和常用场景？
 Keywords: immutability, higher-order functions
 
-节流（throttle）和防抖（debounce）的区别和实现思路？
+# 9节流（throttle）和防抖（debounce）的区别和实现思路？
 Keywords: throttle vs debounce, scroll/resize, lodash
 
-浅拷贝 vs 深拷贝，有哪些常见实现方式？
+# 10.浅拷贝 vs 深拷贝，有哪些常见实现方式？
 Keywords: spread operator, Object.assign, structuredClone, JSON.parse(JSON.stringify)
 
-Explain the difference between CommonJS and ES Modules.
+# 11.Explain the difference between CommonJS and ES Modules.
 Keywords: require vs import, static analysis, tree-shaking
 
 浏览器渲染流程大致是什么？重排（reflow）和重绘（repaint）？
