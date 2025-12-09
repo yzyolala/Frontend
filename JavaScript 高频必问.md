@@ -358,11 +358,187 @@ Keywords: immutability, higher-order functions
 # 9节流（throttle）和防抖（debounce）的区别和实现思路？
 Keywords: throttle vs debounce, scroll/resize, lodash
 
+常见场景（面试必答）
+✔ 防抖 debounce（适用于“只要最后一次就好”）
+
+搜索框输入 → 只在用户停止输入后发请求
+
+resize 结束后再计算布局
+
+scroll 停止后再加载昂贵计算
+
+✔ 节流 throttle（适用于“持续触发但不能太频繁”）
+
+scroll 事件（滚动监听）
+
+resize 事件（不断变动）
+
+鼠标移动（mousemove）
+
+无限加载（scroll bottom）
+
+背一句：
+
+防抖用于“停止后再执行”，节流用于“高频事件限速执行”。
+
+最常见误区（面试爱问）
+❌ 防抖不适合 scroll，因为 scroll 会一直触发
+
+结果是：你永远等不到“停止滚动”，会卡住逻辑。
+
+❌ 节流不适合搜索框
+
+因为会发太多请求，浪费带宽。
+
 # 10.浅拷贝 vs 深拷贝，有哪些常见实现方式？
 Keywords: spread operator, Object.assign, structuredClone, JSON.parse(JSON.stringify)
+
+| 类型      | 行为                         | 拷贝深度 |
+| ------- | -------------------------- | ---- |
+| **浅拷贝** | 只复制第一层属性，如果属性是对象，则复制的是“引用” | 一层   |
+| **深拷贝** | 把对象的所有层级都完全复制一份            | 无限层级 |
+
+浅拷贝）
+
+你的代码：
+
+const b = arr.slice();
+const c = [].concat(arr);
+
+
+这两行的作用是一样的：
+
+都创建一个新数组
+
+都只复制“第一层”的元素
+
+里面如果是对象，仍然是引用
+
+1️⃣ slice() 的含义
+const b = arr.slice();
+
+
+意思是：
+
+从数组 arr 中“切”出所有元素，组成一个新数组 b。
+
+例子：
+
+const arr = [1, 2, 3];
+const b = arr.slice();
+
+
+结果：
+
+arr → [1, 2, 3]
+b   → [1, 2, 3] （新数组）
+
+
+并且：
+
+console.log(arr === b); // false（不同数组）
+
+
+但如果数组里有对象：
+
+const arr = [{x:1}, {y:2}];
+const b = arr.slice();
+
+b[0].x = 999;
+
+console.log(arr[0].x); // 999
+
+
+为什么？
+👉 因为对象是“引用”，浅拷贝不会复制内容，只复制指针。
 
 # 11.Explain the difference between CommonJS and ES Modules.
 Keywords: require vs import, static analysis, tree-shaking
 
-浏览器渲染流程大致是什么？重排（reflow）和重绘（repaint）？
+CommonJS（CJS）是运行时加载、动态的；
+ES Modules（ESM）是编译时加载、静态的、可 tree-shaking。
+
+CommonJS = 运行时加载（runtime）
+
+require() 在代码执行时才运行：
+
+if (needFoo) {
+  const foo = require("./foo");  // 执行时才决定加载
+}
+
+
+→ 动态导入，不可提前分析依赖图
+
+ESM = 编译时加载（static）
+
+import 必须写在顶层，不能写在 if 里：
+
+import foo from "./foo";  // 编译阶段就确定依赖
+
+
+→ 编译器能 提前分析模块关系
+→ 也能根据哪些变量没被用到进行 tree-shaking
+
+什么是tree-shaking
+举个具体例子（非常直观）
+
+假设你写：
+
+import { add } from "./utils.js";
+
+
+而 utils.js 内容是：
+
+export function add(a, b) { return a + b }
+export function minus(a, b) { return a - b }
+export function multiply(a, b) { return a * b }
+
+
+如果编译器支持 tree-shaking：
+
+👉 只把 add 打包进最终产物
+minus、multiply 因为没被用 → 会被丢掉
+
+
+# 12.浏览器渲染流程大致是什么？重排（reflow）和重绘（repaint）？
 Keywords: layout, paint, compositing, performance
+
+浏览器渲染流程是：解析 HTML → 构建 DOM/CSSOM → 生成渲染树 → layout → paint → compositing。
+Reflow（重排）：布局发生变化时触发，是最耗性能的；
+Repaint（重绘）：外观改变但布局不变，较轻量。
+
+什么是 Reflow（重排 / Layout）？
+
+元素位置或大小发生变化 → 浏览器需要重新计算布局 → Reflow。
+
+特点：
+
+布局（Layout）阶段被重新执行
+
+最昂贵、最影响性能
+
+可能导致整个页面重新布局（从根节点开始）
+
+会触发 Reflow 的操作：
+
+修改元素的几何属性：width, height, margin, padding, left, top, border…
+
+添加/删除 DOM 节点
+
+修改字体（font-size, font-family）
+
+读取 layout 相关属性（这类操作会“强制同步 Reflow”）
+
+什么是 Repaint（重绘）？
+
+元素的外观改变（颜色、背景、阴影等），但不影响布局 → 触发重绘。
+
+特点：
+
+不会触发布局计算（比 Reflow 便宜很多）
+
+例如：
+
+element.style.background = 'red';
+element.style.color = 'blue';
+
