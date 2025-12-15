@@ -7,6 +7,20 @@ Keywords: event loop, call stack, task queue, microtask vs macrotask
 | **Microtask Queue** | Promise 等微任务 | `then` 回调、`queueMicrotask` | 高        |
 | **Macrotask Queue** | 定时器等宏任务      | `setTimeout`、I/O           | 低        |
 
+你只需要记住这 3 句话（就够了）
+✅ 1️⃣ 执行顺序总规则
+
+同步代码 → microtask（Promise.then / await） → macrotask（setTimeout）
+
+✅ 2️⃣ await 的本质
+
+await 之前是同步，await 之后进 microtask
+
+✅ 3️⃣ 不会插队的规则（高频追问）
+
+microtask 清空完，才会执行下一个 macrotask；
+microtask 里新建的 macrotask 也只能排队，不能插队
+
 5️⃣ 经典示例题（高级前端必问）
 console.log(1);
 
