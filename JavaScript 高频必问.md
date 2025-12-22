@@ -1,11 +1,12 @@
 # 1.解释 JS 的 event loop / 事件循环；call stack 和 task queue 有什么区别？
+
 Keywords: event loop, call stack, task queue, microtask vs macrotask
 
-| 概念                  | 作用           | 内容                         | 优先级      |
-| ------------------- | ------------ | -------------------------- | -------- |
-| **Call Stack**      | 执行同步代码       | 正在运行的函数                    | 最高（直接执行） |
-| **Microtask Queue** | Promise 等微任务 | `then` 回调、`queueMicrotask` | 高        |
-| **Macrotask Queue** | 定时器等宏任务      | `setTimeout`、I/O           | 低        |
+| 概念                | 作用             | 内容                          | 优先级           |
+| ------------------- | ---------------- | ----------------------------- | ---------------- |
+| **Call Stack**      | 执行同步代码     | 正在运行的函数                | 最高（直接执行） |
+| **Microtask Queue** | Promise 等微任务 | `then` 回调、`queueMicrotask` | 高               |
+| **Macrotask Queue** | 定时器等宏任务   | `setTimeout`、I/O             | 低               |
 
 你只需要记住这 3 句话（就够了）
 ✅ 1️⃣ 执行顺序总规则
@@ -30,14 +31,12 @@ Promise.resolve().then(() => console.log(3));
 
 console.log(4);
 
-
 执行顺序：
 
 1
 4
-3   ← Microtask
-2   ← Macrotask
-
+3 ← Microtask
+2 ← Macrotask
 
 解释：
 
@@ -51,8 +50,8 @@ setTimeout → 宏任务
 
 再执行一个宏任务 → 输出 2
 
-
 # 2.什么是闭包（closure），典型使用场景和常见坑？
+
 Keywords: closure, lexical scope, memory leak
 
 最直白的一句话：
@@ -65,18 +64,17 @@ Keywords: closure, lexical scope, memory leak
 
 看这段代码：
 function outer() {
-  let a = 10;
+let a = 10;
 
-  function inner() {
-    console.log(a);
-  }
+function inner() {
+console.log(a);
+}
 
-  return inner;
+return inner;
 }
 
 const fn = outer();
 fn(); // 10
-
 
 执行流程真实情况是：
 
@@ -101,9 +99,8 @@ outer() 结束，但变量不会被销毁
 
 这就叫 Closure。
 
-
-
 # 3.this 在不同场景下怎么绑定？（普通函数 / 箭头函数 / call/apply/bind / class method）
+
 Keywords: this binding, arrow function, implicit/explicit binding
 
 核心心法：你是“出生决定论”还是“际遇决定论”？
@@ -117,33 +114,33 @@ Keywords: this binding, arrow function, implicit/explicit binding
 如果在同一个调用位置出现多种规则，按此顺序判定：
 
 1. 特权阶级：箭头函数 (Arrow Function)
-规则： 根本不看调用方式，无视 new、bind、call。它没有自己的 this，直接“继承”外层作用域的 this。
+   规则： 根本不看调用方式，无视 new、bind、call。它没有自己的 this，直接“继承”外层作用域的 this。
 
 面试金句： "Arrow functions don't have their own this; they treat this as a variable captured from the enclosing lexical scope."
 
 2. 皇权绑定：new 关键字
-规则： new Constructor()
+   规则： new Constructor()
 
 结果： this 指向新创建的那个实例对象。
 
 注意： 这是普通函数能获得的最高优先级。
 
 3. 显式绑定：call / apply / bind
-规则： fn.call(obj), fn.apply(obj), fn.bind(obj)
+   规则： fn.call(obj), fn.apply(obj), fn.bind(obj)
 
 结果： this 强行指向你传入的 obj。
 
 特例： 如果传入 null 或 undefined，在非严格模式下会指向全局对象（window/global），严格模式下就是 null/undefined。
 
 4. 隐式绑定：对象调用 (Method Invocation)
-规则： obj.method()
+   规则： obj.method()
 
 结果： this 指向“点”前面的那个对象 (obj)。
 
 陷阱： 隐式丢失 (Implicit Loss) —— 如果把 obj.method 赋值给一个变量 let fn = obj.method，再执行 fn()，这就变成了默认绑定。
 
 5. 默认绑定：独立调用 (Function Invocation)
-规则： fn() —— 前面没有任何修饰。
+   规则： fn() —— 前面没有任何修饰。
 
 结果：
 
@@ -151,8 +148,8 @@ Keywords: this binding, arrow function, implicit/explicit binding
 
 严格模式 ('use strict')：指向 undefined (现代框架如 React 默认都是严格模式)。
 
-
 # 4.var / let / const 区别是什么？涉及到 hoisting 吗？
+
 Keywords: hoisting, temporal dead zone, function vs block scope
 
 var / let / const 哪个最好用？
@@ -193,19 +190,18 @@ let / const 只要遇到 “{}” 就能被套住（块级作用域 block）
 → 普通 {} 也能套住
 → function 当然也能套住
 
+# 5.解释原型链（prototype chain），**proto** 和 prototype 有什么区别？
 
-# 5.解释原型链（prototype chain），__proto__ 和 prototype 有什么区别？
 Keywords: prototype chain, inheritance, Object.create
 
-| 名字            | 属于谁？   | 代表什么？                  |
-| ------------- | ------ | ---------------------- |
-| **prototype** | 函数独有   | 作为“模板”，用于创建实例的原型       |
-| ****proto**** | 所有对象都有 | 这个对象实际继承自哪个原型（指向它的上一层） |
+| 名字              | 属于谁？     | 代表什么？                                   |
+| ----------------- | ------------ | -------------------------------------------- |
+| **prototype**     | 函数独有     | 作为“模板”，用于创建实例的原型               |
+| \***\*proto\*\*** | 所有对象都有 | 这个对象实际继承自哪个原型（指向它的上一层） |
 
 ✔ prototype 示例（函数的模板）
 function Person() {}
 Person.prototype.sayHi = function () { console.log("hi"); };
-
 
 这个 prototype 意味着：
 
@@ -213,17 +209,16 @@ Person.prototype.sayHi = function () { console.log("hi"); };
 
 ✔ proto 示例（对象指向它的原型）
 const p = new Person();
-p.__proto__ === Person.prototype;  // true
-
+p.**proto** === Person.prototype; // true
 
 这是整个原型机制的核心。
 
-function Person()  ------ prototype ----->  Person.prototype
-        |                                       ↑
-        |                                       |
-       new                                      |
-        ↓                                       |
-   p (实例) -------- __proto__ ------------------
+function Person() ------ prototype -----> Person.prototype
+| ↑
+| |
+new |
+↓ |
+p (实例) -------- **proto** ------------------
 
 Object.create 是什么？（必考）
 
@@ -233,7 +228,7 @@ const parent = { a: 1 };
 const child = Object.create(parent);
 
 child.a; // 1 → 来自 parent
-child.__proto__ === parent; // true
+child.**proto** === parent; // true
 
 终极总结（面试直接背）
 
@@ -242,27 +237,28 @@ proto 是对象的隐藏属性，指向它继承自的原型。
 原型链是通过不断沿着 proto 查找属性形成的链。
 Object.create 能手动指定对象的原型。
 
-
 # 6. == 和 === 的区别？什么时候可能会踩坑？
+
 Keywords: coercion, strict equality, abstract equality
 
-| 运算符   | 名称                          | 会不会做类型转换？            | 比较规则     |
-| ----- | --------------------------- | -------------------- | -------- |
-| `==`  | **宽松相等（abstract equality）** | ✔ 会做类型强制转换（coercion） | 转换后再比较   |
-| `===` | **严格相等（strict equality）**   | ❌ 不会做类型转换            | 先比类型，再比值 |
+| 运算符 | 名称                              | 会不会做类型转换？             | 比较规则         |
+| ------ | --------------------------------- | ------------------------------ | ---------------- |
+| `==`   | **宽松相等（abstract equality）** | ✔ 会做类型强制转换（coercion） | 转换后再比较     |
+| `===`  | **严格相等（strict equality）**   | ❌ 不会做类型转换              | 先比类型，再比值 |
 
 永远不要用 ==，除非你非常确定行为
 工作中推荐使用 ===，除非你想同时判断 null 和 undefined
 
 # 7.Promise 的状态流转；async/await 底层等价于什么？
+
 Keywords: Promise states, thenable, error handling, async/await
 
 Promise 有且只有三种状态：
-| 状态            | 说明           |
+| 状态 | 说明 |
 | ------------- | ------------ |
-| **pending**   | 初始状态、未完成     |
+| **pending** | 初始状态、未完成 |
 | **fulfilled** | 成功（resolved） |
-| **rejected**  | 失败（rejected） |
+| **rejected** | 失败（rejected） |
 状态只会从 pending → fulfilled 或 pending → rejected
 一旦进入 fulfilled 或 rejected，就永远不再变化（immutable）。
 
@@ -271,8 +267,8 @@ resolve = 把 Promise 从 pending（等待）变成 fulfilled（成功）
 Promise 状态流转规则（面试高频）
 ✔ 只能从 pending → fulfilled 或 pending → rejected
 new Promise((resolve, reject) => {
-  resolve(1);
-  reject(2);   // ❌ 无效，因为状态已经变成 fulfilled
+resolve(1);
+reject(2); // ❌ 无效，因为状态已经变成 fulfilled
 });
 
 ✔ resolve() 和 reject() 是异步执行（微任务）
@@ -295,29 +291,25 @@ async 函数永远返回一个 Promise。
 
 async 的底层逻辑
 async function foo() {
-  return 1;
+return 1;
 }
-
 
 等价于：
 
 function foo() {
-  return Promise.resolve(1);
+return Promise.resolve(1);
 }
-
 
 无论你 return 什么，async 函数都会包成 Promise
 
 await 的底层逻辑（最重要！！！）
 let result = await somePromise();
 
-
 相当于：
 
 somePromise().then(result => {
-  // 下面的代码写在这里
+// 下面的代码写在这里
 });
-
 
 也就是：
 
@@ -330,20 +322,18 @@ await = 把后面的代码拆到 then 里执行。
 Promise / async 基础面试题（你一定会遇到）
 题目：
 async function test() {
-  console.log(1);
-  await Promise.resolve();
-  console.log(2);
+console.log(1);
+await Promise.resolve();
+console.log(2);
 }
 test();
 console.log(3);
-
 
 输出顺序：
 
 1
 3
 2
-
 
 为什么？
 
@@ -367,9 +357,11 @@ await 本质上是 then 的语法糖，会暂停 async 函数，把后续代码�
 这段背下来，面试官都会点头。
 
 # 8.Array.prototype.map / filter / reduce / forEach 区别和常用场景？
+
 Keywords: immutability, higher-order functions
 
-# 9节流（throttle）和防抖（debounce）的区别和实现思路？
+# 9 节流（throttle）和防抖（debounce）的区别和实现思路？
+
 Keywords: throttle vs debounce, scroll/resize, lodash
 
 常见场景（面试必答）
@@ -405,12 +397,13 @@ resize 事件（不断变动）
 因为会发太多请求，浪费带宽。
 
 # 10.浅拷贝 vs 深拷贝，有哪些常见实现方式？
+
 Keywords: spread operator, Object.assign, structuredClone, JSON.parse(JSON.stringify)
 
-| 类型      | 行为                         | 拷贝深度 |
-| ------- | -------------------------- | ---- |
-| **浅拷贝** | 只复制第一层属性，如果属性是对象，则复制的是“引用” | 一层   |
-| **深拷贝** | 把对象的所有层级都完全复制一份            | 无限层级 |
+| 类型       | 行为                                               | 拷贝深度 |
+| ---------- | -------------------------------------------------- | -------- |
+| **浅拷贝** | 只复制第一层属性，如果属性是对象，则复制的是“引用” | 一层     |
+| **深拷贝** | 把对象的所有层级都完全复制一份                     | 无限层级 |
 
 浅拷贝）
 
@@ -418,7 +411,6 @@ Keywords: spread operator, Object.assign, structuredClone, JSON.parse(JSON.strin
 
 const b = arr.slice();
 const c = [].concat(arr);
-
 
 这两行的作用是一样的：
 
@@ -431,7 +423,6 @@ const c = [].concat(arr);
 1️⃣ slice() 的含义
 const b = arr.slice();
 
-
 意思是：
 
 从数组 arr 中“切”出所有元素，组成一个新数组 b。
@@ -441,17 +432,14 @@ const b = arr.slice();
 const arr = [1, 2, 3];
 const b = arr.slice();
 
-
 结果：
 
 arr → [1, 2, 3]
-b   → [1, 2, 3] （新数组）
-
+b → [1, 2, 3] （新数组）
 
 并且：
 
 console.log(arr === b); // false（不同数组）
-
 
 但如果数组里有对象：
 
@@ -462,11 +450,11 @@ b[0].x = 999;
 
 console.log(arr[0].x); // 999
 
-
 为什么？
 👉 因为对象是“引用”，浅拷贝不会复制内容，只复制指针。
 
 # 11.Explain the difference between CommonJS and ES Modules.
+
 Keywords: require vs import, static analysis, tree-shaking
 
 CommonJS（CJS）是运行时加载、动态的；
@@ -477,9 +465,8 @@ CommonJS = 运行时加载（runtime）
 require() 在代码执行时才运行：
 
 if (needFoo) {
-  const foo = require("./foo");  // 执行时才决定加载
+const foo = require("./foo"); // 执行时才决定加载
 }
-
 
 → 动态导入，不可提前分析依赖图
 
@@ -487,34 +474,31 @@ ESM = 编译时加载（static）
 
 import 必须写在顶层，不能写在 if 里：
 
-import foo from "./foo";  // 编译阶段就确定依赖
-
+import foo from "./foo"; // 编译阶段就确定依赖
 
 → 编译器能 提前分析模块关系
 → 也能根据哪些变量没被用到进行 tree-shaking
 
-什么是tree-shaking
+什么是 tree-shaking
 举个具体例子（非常直观）
 
 假设你写：
 
 import { add } from "./utils.js";
 
-
 而 utils.js 内容是：
 
 export function add(a, b) { return a + b }
 export function minus(a, b) { return a - b }
-export function multiply(a, b) { return a * b }
-
+export function multiply(a, b) { return a \* b }
 
 如果编译器支持 tree-shaking：
 
 👉 只把 add 打包进最终产物
 minus、multiply 因为没被用 → 会被丢掉
 
-
 # 12.浏览器渲染流程大致是什么？重排（reflow）和重绘（repaint）？
+
 Keywords: layout, paint, compositing, performance
 
 浏览器渲染流程是：解析 HTML → 构建 DOM/CSSOM → 生成渲染树 → layout → paint → compositing。
@@ -555,4 +539,56 @@ Repaint（重绘）：外观改变但布局不变，较轻量。
 
 element.style.background = 'red';
 element.style.color = 'blue';
+
+# 13.call,apply.bind
+
+const obj = { x: 1 };
+
+function f() {
+  console.log(this.x);
+}
+
+const g = f.bind(obj);
+
+console.log("A");
+g;
+console.log("B");
+
+
+👉 输出是什么？为什么？
+
+输出结果：
+
+A
+B
+
+
+为什么：
+
+bind 不会执行函数
+
+bind 只是 返回一个绑定了 this 的新函数
+
+只有在你 真正调用它（g()）时，f 才会执行
+
+逐行看：
+
+const g = f.bind(obj); // 这里只是生成函数，不执行
+console.log("A");     // 打印 A
+g;                    // 只是一个表达式，什么都没发生
+console.log("B");     // 打印 B
+
+
+👉 如果改成：
+
+g();
+
+
+那输出才会是：
+
+A
+1
+B
+
+bind 一旦绑定了 this，就永久锁死，之后再用 call / apply 都无法改变它的 this
 
