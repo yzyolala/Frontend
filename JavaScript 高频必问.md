@@ -592,3 +592,42 @@ B
 
 bind 一旦绑定了 this，就永久锁死，之后再用 call / apply 都无法改变它的 this
 
+# 12
+
+addEventListener 是干嘛的？（一句话）
+
+给某个 DOM 元素“监听事件”，当事件发生时，执行指定的函数。
+
+二、最基本用法（必须会）
+element.addEventListener(eventType, handler);
+
+三个角色你要记住：
+部分	含义
+element	要监听的 DOM 元素
+eventType	事件类型（字符串）
+handler	事件触发时执行的函数
+最简单例子：点击
+const btn = document.querySelector('button');
+
+btn.addEventListener('click', function () {
+  console.log('按钮被点击了');
+});
+
+
+意思是：
+
+当按钮被点击时，执行这个函数。
+
+三、常见事件类型（你至少要认识）
+事件	何时触发
+click	点击
+input	输入内容变化
+change	输入完成并失焦
+submit	表单提交
+keydown	按键按下
+keyup	按键松开
+mouseover	鼠标移入
+mouseout	鼠标移出
+
+
+
